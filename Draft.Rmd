@@ -1,0 +1,53 @@
+---
+title: "Draft"
+author: "RQ3 district & rla_achievement, Tingyu Zou"
+date: "2/16/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(edld652)
+library(tidyverse)
+library(skimr)
+library(gghighlight)
+list_datasets()
+  
+
+
+s <- get_data("EDFacts_rla_achievement_lea_2010_2019")
+get_documentation("EDFacts_rla_achievement_lea_2010_2019")
+ach <- filter(s,STNAM=="OREGON")
+
+
+#LEAID--district number
+#ALL_RLA00NUMVALID--The number of all students who completed a state assessment in Reading/Language Arts and for whom a proficiency level was assigned across all grades
+#LEP_RLA00NUMVALID--Number of limited English proficient students that completed an assessment and for whom a proficiency level was assigned
+
+ggplot(ach,aes(fct_reorder(LEAID,ALL_RLA00NUMVALID),ALL_RLA00NUMVALID,fill=LEP_RLA00NUMVALID))+
+  geom_col()+
+  coord_flip()+
+  theme_classic()
+   
+          
+ggplot(ach,aes(fct_reorder(LEAID,ALL_RLA00NUMVALID),ALL_RLA00NUMVALID))+
+  geom_col(fill="#00ff7b")+
+  coord_flip()+
+  theme_classic() 
+
+
+ggplot(ach,aes(fct_reorder(LEAID,LEP_RLA00NUMVALID),LEP_RLA00NUMVALID))+
+  geom_col(fill="#00ffe1")+
+  coord_flip()+
+  theme_classic()   
+  
+
+ggplot(ach,aes(LEAID,LEP_RLA00NUMVALID))+
+  geom_col(fill="#00ffe1")+
+  theme_classic() 
+
+```
+
