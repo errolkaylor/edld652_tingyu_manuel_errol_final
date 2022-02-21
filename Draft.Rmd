@@ -15,6 +15,8 @@ library(tidyverse)
 library(skimr)
 library(gghighlight)
 list_datasets()
+library(arrow)
+library(here)
   
 
 
@@ -49,5 +51,58 @@ ggplot(ach,aes(LEAID,LEP_RLA00NUMVALID))+
   geom_col(fill="#00ffe1")+
   theme_classic() 
 
+```
+
+
+
+```{r data_setup}
+list_datasets()
+district_math_participation <- as_tibble(get_data("EDFacts_math_achievement_lea_2010_2019"))
+district_math_achievement <- as_tibble(get_data("EDFacts_math_participation_lea_2013_2019"))
+district_reading_participation <- as_tibble(get_data("EDFacts_rla_participation_lea_2013_2019"))
+district_reading_achievement <- as_tibble(get_data("EDFacts_rla_achievement_lea_2010_2019"))
+district_ccd_fiscal_2012 <- as_tibble(get_data("NCES_CCD_fiscal_district_2012"))
+district_directory <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_directory"))
+district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_english_learners"))
+#district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
+head(district_el)
+district_membership <- as_tibble(read_parquet(here("district-membership-17-21.parquet")))
+#school_membership <- as_tibble(read_parquet(here("school-membership-17-21.parquet")))
+
+#head(district_reading_participation)
+
+#take the above files, and filter to oregon data
+or_district_math_achievement <- district_math_achievement %>% 
+  filter(STNAM == "OREGON")
+or_district_math_participation <- district_math_participation %>% 
+  filter(STNAM == "OREGON")
+or_district_rla_achievement <- district_reading_achievement %>% 
+  filter(STNAM == "OREGON")
+or_district_rla_participation <- district_reading_participation %>% 
+  filter(STNAM == "OREGON")
+or_district_fiscal_2012 <- district_ccd_fiscal_2012 %>% 
+  filter(STNAME == "Oregon")
+or_district_directory <- district_directory %>% 
+  filter(STATENAME == "OREGON")
+or_district_el <- district_el %>% 
+  filter(STATENAME == "OREGON") %>% 
+  select(LEAID,
+         SCHOOL_YEAR,
+         LEP_COUNT)
+or_district_membership <- district_membership %>% 
+  filter(STATENAME == "OREGON")
+
+or_district_el_directory <- 
+  left_join(or_district_directory,
+            or_district_el,
+            by="LEAID") 
+
+full_dataset <- left_join(or_district_el_directory,
+                          or_district_rla_achievement,
+                          by="LEAID") %>% 
+  left_join(or_district_rla_participation,
+            by="LEAID")
+
+full_dataset
 ```
 
