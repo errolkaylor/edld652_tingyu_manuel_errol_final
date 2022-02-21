@@ -7,9 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
 
-```{r}
 library(edld652)
 library(tidyverse)
 library(skimr)
@@ -18,9 +16,9 @@ list_datasets()
 library(arrow)
 library(here)
 library(rio)
-  
+```
 
-
+```{r}
 s <- get_data("EDFacts_rla_achievement_lea_2010_2019")
 get_documentation("EDFacts_rla_achievement_lea_2010_2019")
 ach <- filter(s,STNAM=="OREGON")
@@ -67,7 +65,7 @@ district_directory <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_
 district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_english_learners"))
 #district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
 head(district_el)
-district_membership <- as_tibble(read_parquet(here("district-membership-17-21.parquet")))
+district_membership <- as_tibble(read_parquet(here("data", "district-membership-17-21.parquet")))
 #school_membership <- as_tibble(read_parquet(here("school-membership-17-21.parquet")))
 
 #head(district_reading_participation)
@@ -90,6 +88,7 @@ or_district_el <- district_el %>%
   select(LEAID,
          SCHOOL_YEAR,
          LEP_COUNT)
+
 or_district_membership <- district_membership %>% 
   filter(STATENAME == "OREGON")
 
@@ -104,11 +103,12 @@ full_dataset <- left_join(or_district_el_directory,
   left_join(or_district_rla_participation,
             by="LEAID")
 
-full_dataset
+
 ```
 
 ```{r }
 dli <- import(here("data","districts_dli.xlsx"))
+
 
 #Merge membership and DLI data
 
