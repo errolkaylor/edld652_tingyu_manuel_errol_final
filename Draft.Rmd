@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
+library(tmap)
 library(edld652)
 library(tidyverse)
 library(skimr)
@@ -17,6 +17,8 @@ library(arrow)
 library(here)
 library(rio)
 library(ggrepel)
+library(tigris)
+library(leaflet)
 ```
 
 ```{r}
@@ -66,7 +68,7 @@ district_directory <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_
 district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_english_learners"))
 #district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
 head(district_el)
-district_membership <- as_tibble(read_parquet(here("data", "district-membership-17-21.parquet")))
+district_membership <- as_tibble(read_parquet(here( "district-membership-17-21.parquet")))
 #school_membership <- as_tibble(read_parquet(here("school-membership-17-21.parquet")))
 
 #head(district_reading_participation)
@@ -104,7 +106,17 @@ full_dataset <- left_join(or_district_el_directory,
   left_join(or_district_rla_participation,
             by="LEAID")
 
+or_district_data <- school_districts(state=41)
 
+pal <- colorNumeric(
+  palette = "Blues",
+  domain = full_dataset$LEP_COUNT)
+
+leaflet(or_district_data) %>%
+  addProviderTiles("CartoDB.Positron") %>% 
+  addPolygons(color = ~pal(full_dataset$LEP_COUNT),
+              weight = 0.5,
+              fillOpacity = 1) 
 ```
 
 ```{r }
