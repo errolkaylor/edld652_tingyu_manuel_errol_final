@@ -16,6 +16,7 @@ list_datasets()
 library(arrow)
 library(here)
 library(rio)
+library(ggrepel)
 ```
 
 ```{r}
@@ -107,27 +108,81 @@ full_dataset <- left_join(or_district_el_directory,
 ```
 
 ```{r }
-dli <- import(here("data","districts_dli.xlsx"))
+dli <- import(here("data","districts_dli.xlsx")) %>%
+  janitor::clean_names() %>%
+  mutate(leaid = as.character(leaid))
+
+or_el <- or_district_el %>%
+  filter(SCHOOL_YEAR == "2018-2019") %>%
+  select(LEAID, LEP_COUNT) %>%
+  janitor::clean_names()
+
+or_enroll_white <- or_district_membership %>%
+  filter(SCHOOL_YEAR == "2018-2019" & 
+           GRADE == "No Category Codes" &
+           RACE_ETHNICITY == "White") %>%
+  group_by(LEAID) %>%
+  summarize(student_white_count = sum(STUDENT_COUNT))
 
 
-#Merge membership and DLI data
+or_enroll_total <- or_district_membership %>%
+  filter(SCHOOL_YEAR == "2018-2019" & 
+           GRADE == "No Category Codes" &
+           RACE_ETHNICITY == "No Category Codes" & 
+           SEX == "No Category Codes" &
+         TOTAL_INDICATOR == "Education Unit Total" &
+           STUDENT_COUNT > 0 &
+           !is.na(STUDENT_COUNT) ) %>%
+  left_join(or_enroll_white, by = "LEAID") %>%
+  mutate(white_pct = (student_white_count/STUDENT_COUNT)*100) %>%
+  janitor::clean_names() %>%
+  left_join(dli,by="leaid") %>%
+  left_join(or_el,by = "leaid") %>%
+  select(leaid,lea_name,student_count,student_white_count,white_pct,schools_dli, lep_count) %>%
+  mutate(schools_dli = ifelse(is.na(schools_dli),0,schools_dli),
+         el_pct = (lep_count/student_count)*100,
+         dli_cat = case_when(schools_dli == 0 ~ "0 schools",
+                             schools_dli > 0 & schools_dli < 3 ~"1-2 schools",
+                             schools_dli > 2 & schools_dli < 6 ~ "3-5 schools",
+                             schools_dli > 3 ~"More than 5 schools"
+                             ))
+  
+
+  
 
 ```
 
-## Creating a plot - need full dataset for this
+## Creating a plot that visualizes DLI concentration by white and EL concentration in Oregon
 
 ```{r }
 
-data %>%
-  ggplot(aes(x=pct_white, y = pct_frpl, color = "dli_group" , size = "el_enrollment")) +
-  geom_point() +
+or_enroll_total%>%
+  ggplot(aes(x = el_pct, y=white_pct)) +
+  geom_point(aes(size = lep_count), color = "grey80") +
+  geom_point(data = filter(or_enroll_total,schools_dli > 0 & !is.na(dli_cat)),
+             aes(el_pct,y = white_pct, size = lep_count, color = as.factor(dli_cat))) +
+  geom_text_repel(data = filter(or_enroll_total,el_pct > 10 & lep_count > 750 & schools_dli == 0),
+                  aes(label = lea_name), min.segment.length = 0, box.padding = 1.25) +
+  scale_size_continuous(
+    name = "Number of EL students",
+    breaks = c(50,100,500,750, 1000)) +
+  xlim(0,35) +
 # create the quadrants
-  geom_segment(aes(x = 100, y = 0, xend = 10, yend = 100)) +
+  geom_segment(aes(x = 35, y = 0, xend = 35, yend = 100)) +
   geom_segment(aes(x = 0, y = 0, xend = 0, yend = 100)) +
-  geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0)) +
-  geom_segment(aes(x = 0, y = 5, xend = 100, yend = 50)) +
-  geom_segment(aes(x = 50, y = 0, xend = 50, yend = 100)) +
-  geom_segment(aes(x = 0, y = 100, xend = 100, yend = 100)) +
+  geom_segment(aes(x = 0, y = 0, xend = 35, yend = 0)) +
+  geom_segment(aes(x = 0, y = 60, xend = 35, yend = 60)) +
+  geom_segment(aes(x = 10, y = 0, xend = 10, yend = 100)) +
+  geom_segment(aes(x = 0, y = 100, xend = 35, yend = 100)) +
+  # quadrant labels
+  annotate("text", x = 5, y = 95, alpha = 0.35, label = "High White, Low EL Districts") +
+  annotate("text", x = 20, y = 95, alpha = 0.35, label = " ") +
+  annotate("text", x = 20, y = 15, alpha = 0.35, label = "Low White, High EL Districts\n\ (Candiates for DLI programs)") +
+  annotate("text", x = 5, y = 15, alpha = 0.35, label = " ") +
+  theme_minimal() +
+  labs(title = "A high concentration of Oregon districts with DLI programs are in predominantly white districts",
+       y = "Percent white", 
+       x = "Percent EL of total enrollment")
   
 
 
