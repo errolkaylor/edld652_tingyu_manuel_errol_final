@@ -40,7 +40,7 @@ ggplot(ach,aes(fct_reorder(LEAID,ALL_RLA00NUMVALID),ALL_RLA00NUMVALID,fill=LEP_R
 ggplot(ach,aes(fct_reorder(LEAID,ALL_RLA00NUMVALID),ALL_RLA00NUMVALID))+
   geom_col(fill="#00ff7b")+
   coord_flip()+
-  theme_classic() 
+  theme_classic() # stay away from green for colorblind individuals
 
 
 ggplot(ach,aes(fct_reorder(LEAID,LEP_RLA00NUMVALID),LEP_RLA00NUMVALID))+
@@ -51,8 +51,10 @@ ggplot(ach,aes(fct_reorder(LEAID,LEP_RLA00NUMVALID),LEP_RLA00NUMVALID))+
 
 ggplot(ach,aes(LEAID,LEP_RLA00NUMVALID))+
   geom_col(fill="#00ffe1")+
-  theme_classic() 
-
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) # this is a start, but you will need to relevel to make them understandable.
+  
+# Not really sure what the end goal is here. If you are going to keep this, you will need to make sure that all of the LEAID numbers are visible or noted in some way. 
 ```
 
 
@@ -68,7 +70,7 @@ district_directory <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_
 district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_english_learners"))
 #district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
 head(district_el)
-district_membership <- as_tibble(read_parquet(here( "district-membership-17-21.parquet")))
+district_membership <- as_tibble(read_parquet(here( "district-membership-17-21.parquet"))) # this parquet is not in the data folder. Cannot run this.
 #school_membership <- as_tibble(read_parquet(here("school-membership-17-21.parquet")))
 
 #head(district_reading_participation)
@@ -98,7 +100,7 @@ or_district_membership <- district_membership %>%
 or_district_el_directory <- 
   left_join(or_district_directory,
             or_district_el,
-            by="LEAID")
+            by="LEAID") # cannot run this because the parquet file needed is not in data folder
 
 full_dataset <- left_join(or_district_el_directory,
                           or_district_rla_achievement,
@@ -196,6 +198,6 @@ or_enroll_total%>%
        y = "Percent white", 
        x = "Percent EL of total enrollment")
   
-
+# Though I cannot load the plot since the parquet file is missing. From the code, it looks like the annotating will be a great piece! Also, I really like the descriptive title. It helps me understand without actually viewing the plot at all!
 
 ```
