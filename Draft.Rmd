@@ -12,7 +12,7 @@ library(edld652)
 library(tidyverse)
 library(skimr)
 library(gghighlight)
-list_datasets()
+#list_datasets()
 library(arrow)
 library(here)
 library(rio)
@@ -57,8 +57,9 @@ ggplot(ach,aes(LEAID,LEP_RLA00NUMVALID))+
 
 
 
+
 ```{r data_setup}
-list_datasets()
+#list_datasets()
 district_math_participation <- as_tibble(get_data("EDFacts_math_achievement_lea_2010_2019"))
 district_math_achievement <- as_tibble(get_data("EDFacts_math_participation_lea_2013_2019"))
 district_reading_participation <- as_tibble(get_data("EDFacts_rla_participation_lea_2013_2019"))
@@ -67,8 +68,10 @@ district_ccd_fiscal_2012 <- as_tibble(get_data("NCES_CCD_fiscal_district_2012"))
 district_directory <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_directory"))
 district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_english_learners"))
 #district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
-head(district_el)
-district_membership <- as_tibble(read_parquet(here( "district-membership-17-21.parquet")))
+#head(district_el)
+#district_membership <- as_tibble(read_parquet(here( "district-membership-17-21.parquet")))
+# I couldn't get this line to work. On closer inspection, it seems the cloned data folder has this file in an iCloud format (.parquet.icloud), and this code is unable to read it. Maybe changing the format of the file would help.
+
 #school_membership <- as_tibble(read_parquet(here("school-membership-17-21.parquet")))
 
 #head(district_reading_participation)
@@ -92,8 +95,11 @@ or_district_el <- district_el %>%
          SCHOOL_YEAR,
          LEP_COUNT)
 
-or_district_membership <- district_membership %>% 
-  filter(STATENAME == "OREGON")
+#or_district_membership <- district_membership %>% 
+ # filter(STATENAME == "OREGON")
+
+#Again, this didn't work for me because there is no district_membership object in my environment
+
 
 or_district_el_directory <- 
   left_join(or_district_directory,
@@ -137,6 +143,7 @@ or_enroll_white <- or_district_membership %>%
   summarize(student_white_count = sum(STUDENT_COUNT))
 
 
+#The below codes also doesn't run on my system.
 or_enroll_total <- or_district_membership %>%
   filter(SCHOOL_YEAR == "2018-2019" & 
            GRADE == "No Category Codes" &
