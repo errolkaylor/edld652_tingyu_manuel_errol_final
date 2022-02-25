@@ -53,6 +53,8 @@ ggplot(ach,aes(LEAID,LEP_RLA00NUMVALID))+
   geom_col(fill="#00ffe1")+
   theme_classic() 
 
+
+# RG It might be helpful to use a different variable instead of % valid. Maybe use # of students who were proficient or above? 
 ```
 
 
@@ -117,6 +119,8 @@ leaflet(or_district_data) %>%
   addPolygons(color = ~pal(full_dataset$LEP_COUNT),
               weight = 0.5,
               fillOpacity = 1) 
+
+# RG Wow this leaflet is so cool! Is there a way to add titles or a legend?
 ```
 
 ```{r }
@@ -159,6 +163,9 @@ or_enroll_total <- or_district_membership %>%
                              schools_dli > 3 ~"More than 5 schools"
                              ))
   
+# RG This didn't run for me Error: Error in filter(., SCHOOL_YEAR == "2018-2019" & GRADE == "No Category Codes" &  : object 'or_district_membership' not found
+
+#RG It would be helpful to label chunks so that the reviewer knows what they should be seeing
 
   
 
@@ -197,5 +204,5 @@ or_enroll_total%>%
        x = "Percent EL of total enrollment")
   
 
-
+# RG This didn't run for me either Error: Error in ggplot(., aes(x = el_pct, y = white_pct)) : object 'or_enroll_total' not found
 ```
