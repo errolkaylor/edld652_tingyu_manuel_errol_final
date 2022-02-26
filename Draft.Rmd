@@ -38,7 +38,7 @@ ggplot(ach,aes(fct_reorder(LEAID,ALL_RLA00NUMVALID),ALL_RLA00NUMVALID,fill=LEP_R
    
           
 ggplot(ach,aes(fct_reorder(LEAID,ALL_RLA00NUMVALID),ALL_RLA00NUMVALID))+
-  geom_col(fill="#00ff7b")+
+  geom_col(fill="#00ff7b")+ # this color is so bright! Hard to distinguish between bars.
   coord_flip()+
   theme_classic() 
 
@@ -52,7 +52,7 @@ ggplot(ach,aes(fct_reorder(LEAID,LEP_RLA00NUMVALID),LEP_RLA00NUMVALID))+
 ggplot(ach,aes(LEAID,LEP_RLA00NUMVALID))+
   geom_col(fill="#00ffe1")+
   theme_classic() 
-
+# very hard to read the axis on these plots. Consider renaming or changing?
 ```
 
 
@@ -66,9 +66,9 @@ district_reading_achievement <- as_tibble(get_data("EDFacts_rla_achievement_lea_
 district_ccd_fiscal_2012 <- as_tibble(get_data("NCES_CCD_fiscal_district_2012"))
 district_directory <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_directory"))
 district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_english_learners"))
-#district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
+#district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership")) # I tried to run this twice and it took some serious time (bless your soul and patience). In the end, I first got an error that it failed to open a local file, so crushing. The next time the error was due to size 'Error: cannot allocate vector of size 4.0 Gb'. Hope it works with yours but might want to look into. Because of it I couldn't run the rest of the code using this piece here.
 head(district_el)
-district_membership <- as_tibble(read_parquet(here( "district-membership-17-21.parquet")))
+district_membership <- as_tibble(read_parquet(here("district-membership-17-21.parquet")))
 #school_membership <- as_tibble(read_parquet(here("school-membership-17-21.parquet")))
 
 #head(district_reading_participation)
@@ -90,9 +90,9 @@ or_district_el <- district_el %>%
   filter(STATENAME == "OREGON") %>% 
   select(LEAID,
          SCHOOL_YEAR,
-         LEP_COUNT)
+         LEP_COUNT) # I like this process of making such a large file and narrowing onto one state. Clever!
 
-or_district_membership <- district_membership %>% 
+or_district_membership <- district_membership %>% # couldn't run this due to district_membership from code earlier not working.
   filter(STATENAME == "OREGON")
 
 or_district_el_directory <- 
@@ -117,6 +117,7 @@ leaflet(or_district_data) %>%
   addPolygons(color = ~pal(full_dataset$LEP_COUNT),
               weight = 0.5,
               fillOpacity = 1) 
+# I could not run line 95 but everything else in this ran. This visual is so cool! I did not even know you can zoom in and out in R.
 ```
 
 ```{r }
@@ -160,14 +161,14 @@ or_enroll_total <- or_district_membership %>%
                              ))
   
 
-  
+  # this is what I can't run because unable to get 'or_district_membership' since couldn't get 'district_membership'. Code looks clean and easy to follow though!
 
 ```
 
 ## Creating a plot that visualizes DLI concentration by white and EL concentration in Oregon
 
 ```{r }
-
+# and I can't run this because of the previous code that is broken. I tried looking back if maybe it was something I could change but 
 or_enroll_total%>%
   ggplot(aes(x = el_pct, y=white_pct)) +
   geom_point(aes(size = lep_count), color = "grey80") +
