@@ -24,33 +24,34 @@ library(leaflet)
 ```{r}
 s <- get_data("EDFacts_rla_achievement_lea_2010_2019")
 get_documentation("EDFacts_rla_achievement_lea_2010_2019")
-ach <- filter(s,STNAM=="OREGON")
+ach <- filter(s, STNAM == "OREGON")
 
 
 #LEAID--district number
 #ALL_RLA00NUMVALID--The number of all students who completed a state assessment in Reading/Language Arts and for whom a proficiency level was assigned across all grades
 #LEP_RLA00NUMVALID--Number of limited English proficient students that completed an assessment and for whom a proficiency level was assigned
 
-ggplot(ach,aes(fct_reorder(LEAID,ALL_RLA00NUMVALID),ALL_RLA00NUMVALID,fill=LEP_RLA00NUMVALID))+
-  geom_col()+
-  coord_flip()+
+ggplot(ach, aes(fct_reorder(LEAID, ALL_RLA00NUMVALID), #Amy: Added a line break here to keep code within 80 characters
+                ALL_RLA00NUMVALID, fill = LEP_RLA00NUMVALID)) +
+  geom_col() +
+  coord_flip() +
   theme_classic()
    
           
-ggplot(ach,aes(fct_reorder(LEAID,ALL_RLA00NUMVALID),ALL_RLA00NUMVALID))+
-  geom_col(fill="#00ff7b")+
-  coord_flip()+
+ggplot(ach, aes(fct_reorder(LEAID, ALL_RLA00NUMVALID), ALL_RLA00NUMVALID))+
+  geom_col(fill = "#00ff7b") +
+  coord_flip() +
   theme_classic() 
 
 
-ggplot(ach,aes(fct_reorder(LEAID,LEP_RLA00NUMVALID),LEP_RLA00NUMVALID))+
-  geom_col(fill="#00ffe1")+
-  coord_flip()+
+ggplot(ach, aes(fct_reorder(LEAID, LEP_RLA00NUMVALID), LEP_RLA00NUMVALID))+
+  geom_col(fill = "#00ffe1") +
+  coord_flip() +
   theme_classic()   
   
 
-ggplot(ach,aes(LEAID,LEP_RLA00NUMVALID))+
-  geom_col(fill="#00ffe1")+
+ggplot(ach, aes(LEAID, LEP_RLA00NUMVALID)) +
+  geom_col(fill = "#00ffe1") +
   theme_classic() 
 
 ```
@@ -68,7 +69,7 @@ district_directory <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_
 district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_english_learners"))
 #district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
 head(district_el)
-district_membership <- as_tibble(read_parquet(here( "district-membership-17-21.parquet")))
+district_membership <- as_tibble(read_parquet(here( "district-membership-17-21.parquet"))) #Amy: I couldn't get this to work.
 #school_membership <- as_tibble(read_parquet(here("school-membership-17-21.parquet")))
 
 #head(district_reading_participation)
@@ -92,21 +93,22 @@ or_district_el <- district_el %>%
          SCHOOL_YEAR,
          LEP_COUNT)
 
+#Amy: This wouldn't run due to the originating parquet file not loading
 or_district_membership <- district_membership %>% 
-  filter(STATENAME == "OREGON")
+  filter(STATENAME == "OREGON") 
 
 or_district_el_directory <- 
   left_join(or_district_directory,
             or_district_el,
-            by="LEAID")
+            by = "LEAID")
 
 full_dataset <- left_join(or_district_el_directory,
                           or_district_rla_achievement,
-                          by="LEAID") %>% 
+                          by = "LEAID") %>% 
   left_join(or_district_rla_participation,
-            by="LEAID")
+            by = "LEAID")
 
-or_district_data <- school_districts(state=41)
+or_district_data <- school_districts(state = 41)
 
 pal <- colorNumeric(
   palette = "Blues",
@@ -129,14 +131,15 @@ or_el <- or_district_el %>%
   select(LEAID, LEP_COUNT) %>%
   janitor::clean_names()
 
-or_enroll_white <- or_district_membership %>%
+#Amy: This wouldn't run due to the originating parquet file not loading
+or_enroll_white <- or_district_membership %>% 
   filter(SCHOOL_YEAR == "2018-2019" & 
            GRADE == "No Category Codes" &
            RACE_ETHNICITY == "White") %>%
   group_by(LEAID) %>%
-  summarize(student_white_count = sum(STUDENT_COUNT))
+  summarize(student_white_count = sum(STUDENT_COUNT)) 
 
-
+#Amy: This wouldn't run due to the originating parquet file not loading
 or_enroll_total <- or_district_membership %>%
   filter(SCHOOL_YEAR == "2018-2019" & 
            GRADE == "No Category Codes" &
@@ -146,39 +149,40 @@ or_enroll_total <- or_district_membership %>%
            STUDENT_COUNT > 0 &
            !is.na(STUDENT_COUNT) ) %>%
   left_join(or_enroll_white, by = "LEAID") %>%
-  mutate(white_pct = (student_white_count/STUDENT_COUNT)*100) %>%
+  mutate(white_pct = (student_white_count / STUDENT_COUNT) * 100) %>%
   janitor::clean_names() %>%
-  left_join(dli,by="leaid") %>%
-  left_join(or_el,by = "leaid") %>%
-  select(leaid,lea_name,student_count,student_white_count,white_pct,schools_dli, lep_count) %>%
-  mutate(schools_dli = ifelse(is.na(schools_dli),0,schools_dli),
-         el_pct = (lep_count/student_count)*100,
+  left_join(dli, by = "leaid") %>%
+  left_join(or_el, by = "leaid") %>%
+  select(leaid, lea_name, student_count, student_white_count, 
+         white_pct,schools_dli, lep_count) %>%
+  mutate(schools_dli = ifelse(is.na(schools_dli), 0, schools_dli),
+         el_pct = (lep_count / student_count) * 100,
          dli_cat = case_when(schools_dli == 0 ~ "0 schools",
                              schools_dli > 0 & schools_dli < 3 ~"1-2 schools",
                              schools_dli > 2 & schools_dli < 6 ~ "3-5 schools",
                              schools_dli > 3 ~"More than 5 schools"
                              ))
-  
-
-  
-
 ```
 
 ## Creating a plot that visualizes DLI concentration by white and EL concentration in Oregon
 
 ```{r }
 
-or_enroll_total%>%
-  ggplot(aes(x = el_pct, y=white_pct)) +
+or_enroll_total %>%
+  ggplot(aes(x = el_pct, y = white_pct)) +
   geom_point(aes(size = lep_count), color = "grey80") +
-  geom_point(data = filter(or_enroll_total,schools_dli > 0 & !is.na(dli_cat)),
-             aes(el_pct,y = white_pct, size = lep_count, color = as.factor(dli_cat))) +
-  geom_text_repel(data = filter(or_enroll_total,el_pct > 10 & lep_count > 750 & schools_dli == 0),
-                  aes(label = lea_name), min.segment.length = 0, box.padding = 1.25) +
+  geom_point(data = filter(or_enroll_total, schools_dli > 0 & !is.na(dli_cat)),
+             aes(el_pct, y = white_pct, 
+                 size = lep_count, color = as.factor(dli_cat))) +
+  geom_text_repel(data = filter(or_enroll_total,el_pct > 10 
+                                & lep_count > 750 & schools_dli == 0),
+                  aes(label = lea_name), 
+                  min.segment.length = 0, 
+                  box.padding = 1.25) +
   scale_size_continuous(
     name = "Number of EL students",
-    breaks = c(50,100,500,750, 1000)) +
-  xlim(0,35) +
+    breaks = c(50, 100, 500, 750, 1000)) +
+  xlim(0, 35) +
 # create the quadrants
   geom_segment(aes(x = 35, y = 0, xend = 35, yend = 100)) +
   geom_segment(aes(x = 0, y = 0, xend = 0, yend = 100)) +
@@ -187,15 +191,14 @@ or_enroll_total%>%
   geom_segment(aes(x = 10, y = 0, xend = 10, yend = 100)) +
   geom_segment(aes(x = 0, y = 100, xend = 35, yend = 100)) +
   # quadrant labels
-  annotate("text", x = 5, y = 95, alpha = 0.35, label = "High White, Low EL Districts") +
+  annotate("text", x = 5, y = 95, alpha = 0.35, 
+           label = "High White, Low EL Districts") +
   annotate("text", x = 20, y = 95, alpha = 0.35, label = " ") +
-  annotate("text", x = 20, y = 15, alpha = 0.35, label = "Low White, High EL Districts\n\ (Candiates for DLI programs)") +
+  annotate("text", x = 20, y = 15, alpha = 0.35, 
+           label = "Low White, High EL Districts\n\ (Candiates for DLI programs)") +
   annotate("text", x = 5, y = 15, alpha = 0.35, label = " ") +
   theme_minimal() +
   labs(title = "A high concentration of Oregon districts with DLI programs are in predominantly white districts",
        y = "Percent white", 
        x = "Percent EL of total enrollment")
-  
-
-
 ```
