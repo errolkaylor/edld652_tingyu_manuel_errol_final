@@ -53,6 +53,9 @@ ggplot(ach,aes(LEAID,LEP_RLA00NUMVALID))+
   geom_col(fill="#00ffe1")+
   theme_classic() 
 
+#You did a nice job reordering this and playing with palettes to be more appealing. I like the teal color!
+#Have you considered representing these data geographically, maybe using a heatmap for districts? You could also find a dataset that links LEAID to county or some other larger entity, so that there are fewer observations.
+
 ```
 
 
@@ -68,8 +71,10 @@ district_directory <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_
 district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_english_learners"))
 #district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
 head(district_el)
-district_membership <- as_tibble(read_parquet(here( "district-membership-17-21.parquet")))
+district_membership <- as_tibble(read_parquet(here("data","district-membership-17-21.parquet")))
+#This was stored in your data folder, so I added that but it still won't load. Comparing file paths, I can't find a difference, so I'm stuck and can't proceed past this chunk, sorry!
 #school_membership <- as_tibble(read_parquet(here("school-membership-17-21.parquet")))
+
 
 #head(district_reading_participation)
 
