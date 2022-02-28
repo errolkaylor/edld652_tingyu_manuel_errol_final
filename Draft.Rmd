@@ -72,18 +72,19 @@ or_district_reading_achievement <- as_tibble(get_data("EDFacts_rla_achievement_l
   filter(STNAM == "OREGON")
 
 or_district_ccd_fiscal_2012 <- as_tibble(get_data("NCES_CCD_fiscal_district_2012")) %>% 
-  filter(STNAM == "OREGON")
+  filter(STNAME == "OREGON")
 
 or_district_directory <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_directory")) %>% 
-  filter(STNAM == "OREGON")
+  filter(STATENAME == "OREGON")
 
 or_district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_english_learners")) %>% 
-  filter(STNAM == "OREGON") %>% 
+  filter(STATENAME == "OREGON") %>% 
   select(LEAID,
          SCHOOL_YEAR,
          LEP_COUNT)
 #district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
-head(district_el)
+# head(district_el)
+
 district_membership <- as_tibble(read_parquet(here( "data", "district-membership-17-21.parquet"))) %>% 
   filter(STNAM == "OREGON")
 
@@ -229,3 +230,61 @@ or_enroll_total%>%
        x = "Percent EL of total enrollment",
        caption = " \n\ Note: DLI = Dual language immersion") 
 ```
+
+
+### reviewer comments (Diana):
+
+--
+#### Areas of Strength:
+
+1. Really interesting and important topic area! I look forward to seeing the results.
+2. As you'll see below, I was having trouble accessing the data and kept running into errors; however, the last two graphs in particular look very elegantly coded and I'm excited to see them during your presentation.
+
+#### Things I learned:
+
+I haven't used geom_segment() much and it looks like you're using it quite a bit in the last visualization to create a dumbell plot(?)--excited to take the format for this function and apply this to my own code.
+
+#### Comments for 1st Visualization:
+
+I liked seeing the process of forming your visualizations here and it looks like you've landed on a format that visualizes the y-axis data successfully. The main things that stand out for improvement are as follows:
+
+  -adding labels to the axes and to the top of the graph would reduce cognitive load for the reader
+  -the x-axis is pretty crowded, and it looks like this persists even when the axes are flipped. Here's a stack overflow discussion that might be useful for addressing this: https://stackoverflow.com/questions/14428887/overflowing-x-axis-ggplot2
+  -if the district number is currently treated as a factor, maybe treating is as continuous for the sake of visualizing would help with this
+  -if you can make those values less crowded, I would suggest using the graph with the flipped coordinates (LEAID on y-axis)
+
+#### Comments for 2nd Visualization
+
+Initially, I was unable to run code from line 74 on, with original error: 
+
+Error: Problem with `filter()` input `..1`.
+i Input `..1` is `STNAM == "OREGON"`.
+x object 'STNAM' not found
+
+The problem seems to be that this variable was called `STNAM` for years before 2012, then it changed to `STNAME`, and then `STATENAME` for other years. Just be careful about calling this variable for different years as it's not consistent by file. The code ran just fine after I made those adjustments.
+
+
+Unfortunately, I was unable to find the parquet file in the data folder for the project, and so line 88 would not run for me. Was that data added to the 'data' folder? Here is the error message:
+
+Error: IOError: Failed to open local file 'C:/Users/ddewa/OneDrive/Documents/Oregon/edld 652/edld652_tingyu_manuel_errol_final/data/district-membership-17-21.parquet'. Detail: [Windows error 2] The system cannot find the file specified.
+
+
+Because I couldn't load this data, unfortunately the 2nd and 3rd visualizations Would not run without errors.
+
+
+#### Comments for 3rd Visualization
+
+(see above)
+
+
+#### A few 'best practice' comments:
+
+1. You may want to consider adding an R Project to your files on Github as this will help keep things in order across platforms and people. You may also want to add the knitted html or pdf to Github as well.
+
+2. I'm not quite sure about the specifics of your data and would have benefited from a brief description of each factor embedded within the document itself rather than commented within code chunks.
+
+3.Unless calling data from github or online, make sure it's in the appropriate folders when using rio::here()
+
+
+
+
