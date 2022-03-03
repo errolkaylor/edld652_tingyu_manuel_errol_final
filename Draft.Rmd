@@ -78,14 +78,14 @@ or_district_directory <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_20
   filter(STNAM == "OREGON")
 
 or_district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_english_learners")) %>% 
-  filter(STNAM == "OREGON") %>% 
+  filter(STATENAME == "OREGON") %>% 
   select(LEAID,
          SCHOOL_YEAR,
          LEP_COUNT)
 #district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
 head(district_el)
 district_membership <- as_tibble(read_parquet(here( "data", "district-membership-17-21.parquet"))) %>% 
-  filter(STNAM == "OREGON")
+  filter(STATENAME == "OREGON")
 
 #head(district_reading_participation)
 
@@ -108,8 +108,8 @@ district_membership <- as_tibble(read_parquet(here( "data", "district-membership
 #          SCHOOL_YEAR,
 #          LEP_COUNT)
 # 
-# or_district_membership <- district_membership %>% 
-#   filter(STATENAME == "OREGON")
+or_district_membership <- district_membership %>% 
+   filter(STATENAME == "OREGON")
 
 or_district_el_directory <- 
   left_join(or_district_directory,
