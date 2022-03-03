@@ -25,30 +25,6 @@ library(leaflet)
 library(flexdashboard)
 ```
 
-Column {data-width=650}
------------------------------------------------------------------------
-
-### Chart A
-
-```{r}
-
-```
-
-Column {data-width=350}
------------------------------------------------------------------------
-
-### Chart B
-
-```{r}
-
-```
-
-### Chart C
-
-```{r}
-
-```
-
 
 ```{r data_setup}
 list_datasets()
@@ -112,6 +88,29 @@ leaflet(or_district_data) %>%
               fillOpacity = 1) 
 ```
 
+# Who Knows!
+
+Background {.sidebar}
+---------------------------------------
+Some words here!
+
+Column {.tabset .tabset-fade data-width = 600}
+---------------------------------------------------------------------
+### About
+
+```{r}
+pal <- colorNumeric(
+  palette = "Blues",
+  domain = full_dataset$LEP_COUNT)
+
+leaflet(or_district_data) %>%
+  addProviderTiles("CartoDB.Positron") %>% 
+  addPolygons(color = ~pal(full_dataset$LEP_COUNT),
+              weight = 0.5,
+              fillOpacity = 1) 
+```
+
+
 
 
 ```{r }
@@ -157,6 +156,8 @@ or_enroll_total <- or_district_membership %>%
 
 
 ```
+
+### About
 
 ## Creating a plot that visualizes DLI concentration by white and EL concentration in Oregon
 
