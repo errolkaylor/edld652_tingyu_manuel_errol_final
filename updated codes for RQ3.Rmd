@@ -166,7 +166,7 @@ library(leaflet)
 #                              schools_dli > 3 ~"More than 5 schools"
 #                              ))
 # 
-# 
+# saveRDS(or_enroll_total, file = "FINALdata.Rds")
 # ```
 # 
 # ## Creating a plot that visualizes DLI concentration by EL and student of color concentration
@@ -215,7 +215,8 @@ library(leaflet)
 ```
 
 # Research Question 3
-```{r-data_set_up}
+# data set up
+```{r}
 s <- get_data("EDFacts_rla_achievement_lea_2010_2019")
 get_documentation("EDFacts_rla_achievement_lea_2010_2019")
 ach <- filter(s,STNAM=="OREGON") %>% 
@@ -233,33 +234,64 @@ Final <- filter(FinalDF,LEP_RLA00PCTPROF!="PS",
                 LEP_RLA00PCTPROF!="LT50",
                 LEP_RLA00PCTPROF!="LE20")
 
-
- 
 saveRDS(Final, file = "DATA.Rds")
- 
 
 
-DATAf <- DATA %>% 
-  mutate(rla_ach = case_when(LEP_RLA00PCTPROF <50 ~ "less than 50%",
-                             LEP_RLA00PCTPROF >= 50 ~"at least 50%"))
+
+Df <- DATA %>%
+  mutate(value1 = as.numeric(str_extract(LEP_RLA00PCTPROF, "\\d+")),
+      value2 = abs(as.numeric(str_extract(LEP_RLA00PCTPROF, "\\-\\d+"))),
+      LEP_prof_read = ifelse(is.na(value2),value1,((value1+value2)/2))) %>%
+  select(leaid,lea_name, white_pct,schools_dli,lep_count,students_color_pct,el_pct,dli_cat,LEP_RLA00PCTPROF,value1,value2,LEP_prof_read) %>% 
+  mutate(district_name = gsub("SD.*", "", lea_name)) %>% 
+  mutate(Dli2=case_when(schools_dli == 0 ~ "absence of DLI programs", dli_cat != 0  ~ "presence of DLI programs"))
+
+
+saveRDS(Df, file = "Df.Rds")
+
+
 ```
+
 
 #Visualize RQ3 (the relationship with LEP achievment and districts)
-```{r-RQ3}
+```{r}
+Df %>% 
+ggplot(aes(y=forcats::fct_reorder(district_name,LEP_prof_read),x=LEP_prof_read, color = dli_cat)) +
+  geom_point(aes(size = el_pct), color = "grey80") +
+  geom_point(data = filter(Df,schools_dli > 0 & !is.na(dli_cat)),
+             aes(size = el_pct, 
+                 color = as.factor(dli_cat)),
+                alpha = .7) + 
+  geom_vline(xintercept =40, linetype = "dashed", alpha = .6) +
+  xlim(25,75) +
+  theme_minimal() +
+  theme(panel.border = element_blank(), 
+        panel.grid.major = element_blank(),
+        axis.text.y = element_text(size = 4),
+        axis.text.x = element_text(size = 6))+
+         labs(title = "Distribution of English learners that scored at or above proficient in Oregon",
+              y = "District Name", 
+              x = "Percentage of English learners that scored at or above proficient",
+              color = "Dual language immersion programs",
+              size="Percent EL of total enrollment")+
+  theme(legend.title = element_text(size = 8))
 
-DATAf %>%
-  ggplot(aes(x = el_pct, y=students_color_pct)) +
-  geom_point(aes(size = schools_dli), color = "grey80")+ 
-    geom_point(aes(color=rla_ach))+
-    theme_minimal() +
-         labs(title = "There is a high concentration of better performance in predominantly white districts", 
-              y = "Percent of color", 
-              x = "Percent EL of total enrollment",
-              color = "Percentage of LEP that scored at or above proficient",
-              size="Dual language immersion programs")+
-  theme(legend.title = element_text(size = 10))
+
+
+Df %>% 
+  group_by(Dli2) %>% 
+  summarise(avarage=mean(LEP_prof_read)) %>%
+  ungroup() %>%
+  ggplot(aes(fct_reorder(Dli2,avarage),avarage))+
+  geom_col(aes(fill = Dli2),alpha = 0.9,width=.3)+
+  theme_minimal()+
+  labs(title = "Dual language immersion programs and English learners that scored at or above proficient in Oregon",
+       x = "",
+       y = "Avarage number of EL that scored at or above proficient",
+       fill="")+
+  theme(legend.title = element_text(size = 8))+
+  guides(fill = "none")
+  
+  
 
 ```
-
-
-
