@@ -151,7 +151,13 @@ or_district_membership <- as_tibble(read_parquet(here( "data", "district-members
 
 Background {.sidebar data-widt=350}
 -----------------------------------------------------------------------
-**Dual language immersion programs**
+**Dual language immersion programs** aim to promote high academic achievement, full biliteracy, and develop social consciousness by grouping EL and monolingual students into one classroom while splitting instruction in English and a partner language. Evidence from rigorous studies finds that TWDLI programs has a positive impact on the academic achievement of EL classified students. Leveraging a lottery system to select participants into TWDLI programs at Portland Public Schools ¬– an ideal for an experimental design– Steele et. al., (2017) found that both EL and non-EL students who participated in DLI programs had higher fourth grade English language arts assessments compared to students who were not selected to participate in the program. These results are echoed by quasi-experimental studies in other settings (Watzinger-Tharp et al., 2018) and by meta-analysis that reviewed quantitative studies that interrogated the effects of bilingual education (Rolstad et. al., 2018).
+
+**DLI programs in Oregon are present in at least 24 districts**. Districts with the largest programs tend to be more racially & linguistically diverse. For example, Portland, Beaverton, Hillsboro, Salem-Keizer, and Woodburn all have large DLI programs and serve a high proportion of EL students. However, many of the district programs are in districts that are less diverse.
+
+**There are at least 9 districts in Oregon that serve a high number of EL students but don't offer DLI programs.** These districts serve more than 500 current EL students and have high linguistic and racial diversity. Research indicates that many of these students could benefit from programs such as DLI. 
+
+
 
 Column {.tabset }
 -----------------------------------------------------------------------
@@ -272,7 +278,7 @@ or_enroll_total%>%
   # quadrant labels
   annotate("text", x = 5, y = 5, alpha = 0.35, label = " ") +
   annotate("text", x = 20, y = 5, alpha = 0.35, label = " ") +
-  annotate("text", x = 20, y = 85, alpha = 0.35, label = "Linguistically diverse districts") +
+  annotate("text", x = 20, y = 85, alpha = 0.35, label = "Racially & Linguistically \n\ diverse districts") +
   annotate("text", x = 5, y = 95, alpha = 0.35, label = " ") +
   theme_minimal() +
   theme(panel.border = element_blank(), 
@@ -366,6 +372,10 @@ Final <- filter(FinalDF,LEP_RLA00PCTPROF!="PS",
   select(leaid,lea_name, white_pct,schools_dli,lep_count,students_color_pct,el_pct,dli_cat,LEP_RLA00PCTPROF,value1,value2,el_prof_read) %>%
   arrange(el_prof_read)
 
+dli_read <- Final %>%
+  group_by(dli_cat) %>%
+  summarize(mean = mean(el_prof_read))
+
 Final %>% 
 ggplot(aes(y=forcats::fct_reorder(lea_name,el_prof_read),x=el_prof_read, color = dli_cat)) +
   geom_point(aes(size = el_pct), color = "grey80") +
@@ -373,21 +383,24 @@ ggplot(aes(y=forcats::fct_reorder(lea_name,el_prof_read),x=el_prof_read, color =
              aes(size = el_pct, 
                  color = as.factor(dli_cat)),
                 alpha = .7) + 
-  geom_vline(xintercept =40, linetype = "dashed", alpha = .6) +
+  geom_vline(xintercept =42, alpha = .6) +
+  geom_vline(xintercept =41, linetype = "dashed", color = "red", alpha = .6, size = 1.25) +
+  geom_vline(xintercept =44, linetype = "dashed",  color = "green", alpha = .6, size = 1.25) +
   xlim(25,75) +
   theme_minimal() +
   theme(panel.border = element_blank(), 
         panel.grid.major = element_blank(),
         axis.text.y = element_text(size = 6),
-        axis.text.x = element_text(size = 10))
+        axis.text.x = element_text(size = 10)) +
+  labs(y = " ", x = "Percent proficient in reading")
 
 
-ggplot(Final, aes(el_pct, white_pct)) +
-         geom_point(color = "gray70")+
-         geom_text_repel(aes(label = LEP_RLA00PCTPROF))+
-         theme_minimal() +
-         labs(title = "Destrict and Achievement", 
-              y = "Percent white", 
-              x = "Percent EL of total enrollment")
+# ggplot(Final, aes(el_pct, white_pct)) +
+#          geom_point(color = "gray70")+
+#          geom_text_repel(aes(label = LEP_RLA00PCTPROF))+
+#          theme_minimal() +
+#          labs(title = "Destrict and Achievement", 
+#               y = "Percent white", 
+#               x = "Percent EL of total enrollment")
 ```
 
