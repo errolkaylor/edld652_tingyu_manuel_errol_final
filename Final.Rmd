@@ -28,6 +28,7 @@ library(ggrepel)
 library(tigris)
 library(leaflet)
 library(flexdashboard)
+library(rgdal)
 ```
 
 ```{r data setup, include=FALSE}
@@ -68,25 +69,48 @@ or_district_membership <- as_tibble(read_parquet(here( "data", "district-members
 
 Background {.sidebar data-width=350}
 -----------------------------------------------------------------------
-The state of Oregon is home to **some number** of Emergent Bilingual students, across its **other number** districts. These students represent **proportion** of students in Oregon schools. 
 
-Column { .tabset }
+The state of Oregon is home to 50,500 students characterized as English Learners across its ~200 districts. These students represent **close to 9%** of reported students in Oregon schools, across all grades. 
+
+Initial Versions of the graph chart EL populations compared to total student population of each district.
+
+Our second visualization plots raw counts of students across Oregon, showing areas of greater density. These counts are not intuitive, and make more sense when displayed relative to the overall number of students. 
+
+Understanding that the relative need for EL student support varies dramatically across Oregon allows for allocating resources to better serve as many students as possible, while acknowledging what more isolated EL students may face.
+
+
+
+Column {.tabset}
 -----------------------------------------------------------------------
-### Chart A
+
+### Chart B
 
 ```{r}
 or_district_el_directory <- 
  left_join(or_district_directory,
            or_district_el,
            by="LEAID")
- 
+
+or_enroll_total_edit <- or_enroll_total %>% 
+  mutate(LEAID = leaid)
+
 full_dataset <- left_join(or_district_el_directory,
                           or_district_reading_achievement,
                           by="LEAID") %>% 
                 left_join(or_district_reading_participation,
+                          by="LEAID") %>%
+                left_join(or_enroll_total_edit,
                           by="LEAID")
 or_district_data <- school_districts(state=41)
- 
+
+full_dataset %>% 
+  ggplot(aes(student_count,fct_reorder(lea_name,student_count)))+
+  geom_point(aes(size=lep_count))
+```
+
+### EL Distribution V1
+
+```{r}
 pal <- colorNumeric(
  palette = "Blues",
  domain = full_dataset$LEP_COUNT)
@@ -101,11 +125,6 @@ first_map
 ```
 
 
-### Chart B
-
-```{r}
-
-```
 
 ### Chart C
 
@@ -113,11 +132,14 @@ first_map
 
 ```
 
-# Page 3
+# Reading + Language Arts Achievement
 
+
+Column {.tabset}
+-----------------------------------------------------------------------
 ### First Iteration of the graph
 
-```{r achievement, fig.width= 12}
+```{r }
 #Importing the file that has list of districts with dual language immersion schools in Oregon
 dli <- import(here("data","districts_dli.xlsx")) %>%
   janitor::clean_names() %>%
@@ -206,16 +228,21 @@ ggplot(aes(y=forcats::fct_reorder(lea_name,el_prof_read),x=el_prof_read, color =
         axis.text.y = element_text(size = 6),
         axis.text.x = element_text(size = 10)) +
   labs(y = " ", x = "Percent proficient in reading")
-
-
-# ggplot(Final, aes(el_pct, white_pct)) +
-#          geom_point(color = "gray70")+
-#          geom_text_repel(aes(label = LEP_RLA00PCTPROF))+
-#          theme_minimal() +
-#          labs(title = "Destrict and Achievement", 
-#               y = "Percent white", 
-#               x = "Percent EL of total enrollment")
 ```
+
+### Graph 2 
+
+```{r}
+Final %>% 
+  ggplot(aes(el_pct, white_pct)) +
+        geom_point(color = "gray70")+
+        geom_text_repel(aes(label = LEP_RLA00PCTPROF))+
+        theme_minimal() +
+        labs(title = "Destrict and Achievement", 
+             y = "Percent white", 
+             x = "Percent EL of total enrollment")
+```
+
 
 # DLI
 
@@ -229,7 +256,7 @@ Background {.sidebar data-width=350}
 
 
 
-Column {.tabset }
+Column {.tabset}
 -----------------------------------------------------------------------
 
 ### First Iteration of the graph
