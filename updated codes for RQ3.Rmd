@@ -255,6 +255,53 @@ saveRDS(Df, file = "Df.Rds")
 
 #Visualize RQ3 (the relationship with LEP achievment and districts)
 ```{r}
+# RQ3_1 <- Df %>% 
+# ggplot(aes(y=forcats::fct_reorder(district_name,LEP_prof_read),x=LEP_prof_read, color = dli_cat)) +
+#   geom_point(aes(size = el_pct), color = "grey80") +
+#   geom_point(data = filter(Df,schools_dli > 0 & !is.na(dli_cat)),
+#              aes(size = el_pct, 
+#                  color = as.factor(dli_cat)),
+#                 alpha = .7) + 
+#   geom_vline(xintercept =40, linetype = "dashed", alpha = .6) +
+#   xlim(25,75) +
+#   theme_minimal() +
+#   theme(panel.border = element_blank(), 
+#         panel.grid.major = element_blank(),
+#         axis.text.y = element_text(size = 4),
+#         axis.text.x = element_text(size = 6))+
+#          labs(title = "Distribution of English learners that scored at or above proficient in Oregon",
+#               y = "District Name", 
+#               x = "Percentage of English learners that scored at or above proficient",
+#               color = "Dual language immersion programs",
+#               size="Percent EL of total enrollment")+
+#   theme(legend.title = element_text(size = 8))
+# 
+# 
+# 
+# RQ3_2 <- Df %>% 
+#   group_by(Dli2) %>% 
+#   summarise(avarage=mean(LEP_prof_read)) %>%
+#   ungroup() %>%
+#   ggplot(aes(fct_reorder(Dli2,avarage),avarage))+
+#   geom_col(aes(fill = Dli2),alpha = 0.9,width=.3)+
+#   theme_minimal()+
+#   labs(x = "",
+#        y = "Avarage",
+#        fill="")+
+#   theme(legend.title = element_text(size = 8))+
+#   guides(fill = "none")
+  
+# library(patchwork)
+# RQ3_2_small_txt <- RQ3_2 +
+#   theme(axis.text.y = element_text(size = 8),
+#         text = element_text(size = 8))
+# RQ3_1 + inset_element(RQ3_2_small_txt, 0.5, 0.5, 0.8, 0.)
+# RQ3_1 + RQ3_2
+# 
+dli_read <- Df %>%
+  group_by(Dli2) %>%
+  summarize(mean = mean(LEP_prof_read))
+
 Df %>% 
 ggplot(aes(y=forcats::fct_reorder(district_name,LEP_prof_read),x=LEP_prof_read, color = dli_cat)) +
   geom_point(aes(size = el_pct), color = "grey80") +
@@ -262,36 +309,20 @@ ggplot(aes(y=forcats::fct_reorder(district_name,LEP_prof_read),x=LEP_prof_read, 
              aes(size = el_pct, 
                  color = as.factor(dli_cat)),
                 alpha = .7) + 
-  geom_vline(xintercept =40, linetype = "dashed", alpha = .6) +
+  geom_vline(xintercept =42, alpha = .6) +
+  geom_vline(xintercept =41, linetype = "dashed", color = "#cfcfcf", alpha = .6, size = 1.25) +
+  geom_vline(xintercept =44, linetype = "dashed",  color = "#808080", alpha = .6, size = 1.25) +
   xlim(25,75) +
   theme_minimal() +
   theme(panel.border = element_blank(), 
         panel.grid.major = element_blank(),
-        axis.text.y = element_text(size = 4),
-        axis.text.x = element_text(size = 6))+
-         labs(title = "Distribution of English learners that scored at or above proficient in Oregon",
-              y = "District Name", 
+        axis.text.y = element_text(size = 4 ),
+        axis.text.x = element_text(size = 6)) +
+  labs(title = "Distribution of English learners that scored at or above proficient in Oregon",
+              y = "", 
               x = "Percentage of English learners that scored at or above proficient",
               color = "Dual language immersion programs",
               size="Percent EL of total enrollment")+
   theme(legend.title = element_text(size = 8))
-
-
-
-Df %>% 
-  group_by(Dli2) %>% 
-  summarise(avarage=mean(LEP_prof_read)) %>%
-  ungroup() %>%
-  ggplot(aes(fct_reorder(Dli2,avarage),avarage))+
-  geom_col(aes(fill = Dli2),alpha = 0.9,width=.3)+
-  theme_minimal()+
-  labs(title = "Dual language immersion programs and English learners that scored at or above proficient in Oregon",
-       x = "",
-       y = "Avarage number of EL that scored at or above proficient",
-       fill="")+
-  theme(legend.title = element_text(size = 8))+
-  guides(fill = "none")
-  
-  
 
 ```
