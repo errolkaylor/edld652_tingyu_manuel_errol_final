@@ -1,11 +1,14 @@
 ---
-title: "Final"
+title: "State of Oregon and Dual Language Immersion"
 author: "Manuel Vazquez, Errol Kaylor, Tingyu Zou"
 date: "2/25/2022"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: fill
+    theme:
+      version: 4
+      bootswatch: minty
 ---
 
 ```{r setup, include=FALSE}
@@ -27,34 +30,7 @@ library(leaflet)
 library(flexdashboard)
 ```
 
-# Page 1
-
-Column {data-width=650}
------------------------------------------------------------------------
-
-### Chart A
-
-```{r}
-
-```
-
-Column {data-width=350}
------------------------------------------------------------------------
-
-### Chart B
-
-```{r}
-
-```
-
-### Chart C
-
-```{r}
-
-```
-
-
-```{r data_setup}
+```{r data setup, include=FALSE}
 
 or_district_math_participation <- as_tibble(get_data("EDFacts_math_achievement_lea_2010_2019")) %>% 
   filter(STNAM == "OREGON")
@@ -82,89 +58,66 @@ or_district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_engl
   select(LEAID,
          SCHOOL_YEAR,
          LEP_COUNT)
-#district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
-head(or_district_el)
 
 or_district_membership <- as_tibble(read_parquet(here( "data", "district-membership-17-21.parquet"))) %>% 
   filter(STATENAME == "OREGON")
-
-
-# district_math_participation <- as_tibble(get_data("EDFacts_math_achievement_lea_2010_2019"))
-# district_math_achievement <- as_tibble(get_data("EDFacts_math_participation_lea_2013_2019"))
-# district_reading_participation <- as_tibble(get_data("EDFacts_rla_participation_lea_2013_2019"))
-# district_reading_achievement <- as_tibble(get_data("EDFacts_rla_achievement_lea_2010_2019"))
-# district_ccd_fiscal_2012 <- as_tibble(get_data("NCES_CCD_fiscal_district_2012"))
-# district_directory <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_directory"))
-# district_el <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_english_learners"))
-# district_membership <- as_tibble(get_data("NCES_CCD_nonfiscal_district_2017_2021_membership"))
-# head(district_el)
-# district_membership <- as_tibble(read_parquet(here( "district-membership-17-21.parquet")))
-# #head(district_reading_participation)
-# 
-# #take the above files, and filter to oregon data
-# or_district_math_achievement <- district_math_achievement %>% 
-#   filter(STNAM == "OREGON")
-# or_district_math_participation <- district_math_participation %>% 
-#   filter(STNAM == "OREGON")
-# or_district_rla_achievement <- district_reading_achievement %>% 
-#   filter(STNAM == "OREGON")
-# or_district_rla_participation <- district_reading_participation %>% 
-#   filter(STNAM == "OREGON")
-# or_district_fiscal_2012 <- district_ccd_fiscal_2012 %>% 
-#   filter(STNAME == "Oregon")
-# or_district_directory <- district_directory %>% 
-#   filter(STATENAME == "OREGON")
-# or_district_el <- district_el %>% 
-#   filter(STATENAME == "OREGON") %>% 
-#   select(LEAID,
-#          SCHOOL_YEAR,
-#          LEP_COUNT)
-# 
-# or_district_membership <- district_membership %>% 
-#   filter(STATENAME == "OREGON")
-
-# or_district_el_directory <- 
-#   left_join(or_district_directory,
-#             or_district_el,
-#             by="LEAID")
-# 
-# full_dataset <- left_join(or_district_el_directory,
-#                           or_district_reading_achievement,
-#                           by="LEAID") %>% 
-#   left_join(or_district_reading_participation,
-#             by="LEAID")
-
-# or_district_data <- school_districts(state=41)
-# 
-# pal <- colorNumeric(
-#   palette = "Blues",
-#   domain = full_dataset$LEP_COUNT)
-# 
-# leaflet(or_district_data) %>%
-#   addProviderTiles("CartoDB.Positron") %>% 
-#   addPolygons(color = ~pal(full_dataset$LEP_COUNT),
-#               weight = 0.5,
-#               fillOpacity = 1) 
 ```
 
-# DLI
 
-Background {.sidebar data-widt=350}
+# Oregon District Data
+
+Background {.sidebar data-width=350}
 -----------------------------------------------------------------------
-**Dual language immersion programs** aim to promote high academic achievement, full biliteracy, and develop social consciousness by grouping EL and monolingual students into one classroom while splitting instruction in English and a partner language. Evidence from rigorous studies finds that TWDLI programs has a positive impact on the academic achievement of EL classified students. Leveraging a lottery system to select participants into TWDLI programs at Portland Public Schools ¬– an ideal for an experimental design– Steele et. al., (2017) found that both EL and non-EL students who participated in DLI programs had higher fourth grade English language arts assessments compared to students who were not selected to participate in the program. These results are echoed by quasi-experimental studies in other settings (Watzinger-Tharp et al., 2018) and by meta-analysis that reviewed quantitative studies that interrogated the effects of bilingual education (Rolstad et. al., 2018).
+The state of Oregon is home to **some number** of Emergent Bilingual students, across its **other number** districts. These students represent **proportion** of students in Oregon schools. 
 
-**DLI programs in Oregon are present in at least 24 districts**. Districts with the largest programs tend to be more racially & linguistically diverse. For example, Portland, Beaverton, Hillsboro, Salem-Keizer, and Woodburn all have large DLI programs and serve a high proportion of EL students. However, many of the district programs are in districts that are less diverse.
-
-**There are at least 9 districts in Oregon that serve a high number of EL students but don't offer DLI programs.** These districts serve more than 500 current EL students and have high linguistic and racial diversity. Research indicates that many of these students could benefit from programs such as DLI. 
-
-
-
-Column {.tabset }
+Column { .tabset }
 -----------------------------------------------------------------------
+### Chart A
+
+```{r}
+or_district_el_directory <- 
+ left_join(or_district_directory,
+           or_district_el,
+           by="LEAID")
+ 
+full_dataset <- left_join(or_district_el_directory,
+                          or_district_reading_achievement,
+                          by="LEAID") %>% 
+                left_join(or_district_reading_participation,
+                          by="LEAID")
+or_district_data <- school_districts(state=41)
+ 
+pal <- colorNumeric(
+ palette = "Blues",
+ domain = full_dataset$LEP_COUNT)
+
+first_map <- leaflet(or_district_data) %>%
+ addProviderTiles("CartoDB.Positron") %>% 
+ addPolygons(color = ~pal(full_dataset$LEP_COUNT),
+             weight = 0.5,
+             fillOpacity = 1) 
+
+first_map
+```
 
 
+### Chart B
 
-```{r }
+```{r}
+
+```
+
+### Chart C
+
+```{r}
+
+```
+
+# Page 3
+
+### First Iteration of the graph
+
+```{r achievement, fig.width= 12}
 #Importing the file that has list of districts with dual language immersion schools in Oregon
 dli <- import(here("data","districts_dli.xlsx")) %>%
   janitor::clean_names() %>%
@@ -211,7 +164,73 @@ or_enroll_total <- or_district_membership %>%
   
 
 
+s <- get_data("EDFacts_rla_achievement_lea_2010_2019")
+ach <- filter(s,STNAM=="OREGON") %>% 
+  drop_na(LEP_RLA00PCTPROF)
+
+ach2 <- ach %>% 
+  rename(leaid=LEAID)
+
+FinalDF <- left_join(or_enroll_total,ach2,by="leaid") %>% 
+  drop_na(LEP_RLA00PCTPROF)
+
+#remove rows that are privacy protected
+Final <- filter(FinalDF,LEP_RLA00PCTPROF!="PS",
+                LEP_RLA00PCTPROF!="GE50",
+                LEP_RLA00PCTPROF!="LT50",
+                LEP_RLA00PCTPROF!="LE20") %>%
+  mutate(value1 = as.numeric(str_extract(LEP_RLA00PCTPROF, "\\d+")),
+      value2 = abs(as.numeric(str_extract(LEP_RLA00PCTPROF, "\\-\\d+"))),
+      el_prof_read = ifelse(is.na(value2),value1,((value1+value2)/2))) %>%
+  select(leaid,lea_name, white_pct,schools_dli,lep_count,students_color_pct,el_pct,dli_cat,LEP_RLA00PCTPROF,value1,value2,el_prof_read) %>%
+  arrange(el_prof_read)
+
+dli_read <- Final %>%
+  group_by(dli_cat) %>%
+  summarize(mean = mean(el_prof_read))
+
+Final %>% 
+ggplot(aes(y=forcats::fct_reorder(lea_name,el_prof_read),x=el_prof_read, color = dli_cat)) +
+  geom_point(aes(size = el_pct), color = "grey80") +
+  geom_point(data = filter(Final,schools_dli > 0 & !is.na(dli_cat)),
+             aes(size = el_pct, 
+                 color = as.factor(dli_cat)),
+                alpha = .7) + 
+  geom_vline(xintercept =42, alpha = .6) +
+  geom_vline(xintercept =41, linetype = "dashed", color = "red", alpha = .6, size = 1.25) +
+  geom_vline(xintercept =44, linetype = "dashed",  color = "green", alpha = .6, size = 1.25) +
+  xlim(25,75) +
+  theme_minimal() +
+  theme(panel.border = element_blank(), 
+        panel.grid.major = element_blank(),
+        axis.text.y = element_text(size = 6),
+        axis.text.x = element_text(size = 10)) +
+  labs(y = " ", x = "Percent proficient in reading")
+
+
+# ggplot(Final, aes(el_pct, white_pct)) +
+#          geom_point(color = "gray70")+
+#          geom_text_repel(aes(label = LEP_RLA00PCTPROF))+
+#          theme_minimal() +
+#          labs(title = "Destrict and Achievement", 
+#               y = "Percent white", 
+#               x = "Percent EL of total enrollment")
 ```
+
+# DLI
+
+Background {.sidebar data-width=350}
+-----------------------------------------------------------------------
+**Dual language immersion programs** aim to promote high academic achievement, full biliteracy, and develop social consciousness by grouping EL and monolingual students into one classroom while splitting instruction in English and a partner language. Evidence from rigorous studies finds that TWDLI programs has a positive impact on the academic achievement of EL classified students. Leveraging a lottery system to select participants into TWDLI programs at Portland Public Schools ¬– an ideal for an experimental design– Steele et. al., (2017) found that both EL and non-EL students who participated in DLI programs had higher fourth grade English language arts assessments compared to students who were not selected to participate in the program. These results are echoed by quasi-experimental studies in other settings (Watzinger-Tharp et al., 2018) and by meta-analysis that reviewed quantitative studies that interrogated the effects of bilingual education (Rolstad et. al., 2018).
+
+**DLI programs in Oregon are present in at least 24 districts**. Districts with the largest programs tend to be more racially & linguistically diverse. For example, Portland, Beaverton, Hillsboro, Salem-Keizer, and Woodburn all have large DLI programs and serve a high proportion of EL students. However, many of the district programs are in districts that are less diverse.
+
+**There are at least 9 districts in Oregon that serve a high number of EL students but don't offer DLI programs.** These districts serve more than 500 current EL students and have high linguistic and racial diversity. Research indicates that many of these students could benefit from programs such as DLI. 
+
+
+
+Column {.tabset }
+-----------------------------------------------------------------------
 
 ### First Iteration of the graph
 
@@ -333,74 +352,5 @@ or_enroll_total%>%
        y = "Percent students of color", 
        x = "Percent EL of total enrollment",
        caption = " \n\ Note: DLI = Dual language immersion") 
-```
-
-
-
-
-# Page 3
-
-Background {.sidebar data-width=350}
------------------------------------------------------------------------
-
-
-Column {.tabset data-width=650}
------------------------------------------------------------------------
-
-### First Iteration of the graph
-
-```{r achievement }
-s <- get_data("EDFacts_rla_achievement_lea_2010_2019")
-get_documentation("EDFacts_rla_achievement_lea_2010_2019")
-ach <- filter(s,STNAM=="OREGON") %>% 
-  drop_na(LEP_RLA00PCTPROF)
-
-ach2 <- ach %>% 
-  rename(leaid=LEAID)
-
-FinalDF <- left_join(or_enroll_total,ach2,by="leaid") %>% 
-  drop_na(LEP_RLA00PCTPROF)
-
-#remove rows that are privacy protected
-Final <- filter(FinalDF,LEP_RLA00PCTPROF!="PS",
-                LEP_RLA00PCTPROF!="GE50",
-                LEP_RLA00PCTPROF!="LT50",
-                LEP_RLA00PCTPROF!="LE20") %>%
-  mutate(value1 = as.numeric(str_extract(LEP_RLA00PCTPROF, "\\d+")),
-      value2 = abs(as.numeric(str_extract(LEP_RLA00PCTPROF, "\\-\\d+"))),
-      el_prof_read = ifelse(is.na(value2),value1,((value1+value2)/2))) %>%
-  select(leaid,lea_name, white_pct,schools_dli,lep_count,students_color_pct,el_pct,dli_cat,LEP_RLA00PCTPROF,value1,value2,el_prof_read) %>%
-  arrange(el_prof_read)
-
-dli_read <- Final %>%
-  group_by(dli_cat) %>%
-  summarize(mean = mean(el_prof_read))
-
-Final %>% 
-ggplot(aes(y=forcats::fct_reorder(lea_name,el_prof_read),x=el_prof_read, color = dli_cat)) +
-  geom_point(aes(size = el_pct), color = "grey80") +
-  geom_point(data = filter(Final,schools_dli > 0 & !is.na(dli_cat)),
-             aes(size = el_pct, 
-                 color = as.factor(dli_cat)),
-                alpha = .7) + 
-  geom_vline(xintercept =42, alpha = .6) +
-  geom_vline(xintercept =41, linetype = "dashed", color = "red", alpha = .6, size = 1.25) +
-  geom_vline(xintercept =44, linetype = "dashed",  color = "green", alpha = .6, size = 1.25) +
-  xlim(25,75) +
-  theme_minimal() +
-  theme(panel.border = element_blank(), 
-        panel.grid.major = element_blank(),
-        axis.text.y = element_text(size = 6),
-        axis.text.x = element_text(size = 10)) +
-  labs(y = " ", x = "Percent proficient in reading")
-
-
-# ggplot(Final, aes(el_pct, white_pct)) +
-#          geom_point(color = "gray70")+
-#          geom_text_repel(aes(label = LEP_RLA00PCTPROF))+
-#          theme_minimal() +
-#          labs(title = "Destrict and Achievement", 
-#               y = "Percent white", 
-#               x = "Percent EL of total enrollment")
 ```
 
